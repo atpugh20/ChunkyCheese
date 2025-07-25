@@ -7,7 +7,9 @@ public class PlayerController : MonoBehaviour {
 
     [Header("Player Settings")]
     [SerializeField] private float _moveSpeed;
+    [SerializeField] private float _airSpeed;
     [SerializeField] private float _jumpSpeed;
+    [SerializeField] private bool _canDoubleJump;
     
     [Header("Ground Check Settings")]
     [SerializeField] private Transform _groundCheck;
@@ -27,7 +29,9 @@ public class PlayerController : MonoBehaviour {
     private InputAction _jumpAction;
     private InputAction _attackAction;
 
-    #endregion    
+    #endregion
+
+    #region Private Fields
 
     private Rigidbody2D _rb;
 
@@ -37,6 +41,7 @@ public class PlayerController : MonoBehaviour {
 
     private Vector2 _mouseWorldPosition;
 
+    #endregion
 
     void Start()
     {
@@ -53,7 +58,6 @@ public class PlayerController : MonoBehaviour {
         HandleMovement();
         HandleJump();
         HandleHook();
-
         MoveMouseCursor();
     }
 
@@ -65,7 +69,7 @@ public class PlayerController : MonoBehaviour {
     private void HandleJump() {
         _isGrounded = Physics2D.OverlapCircle(_groundCheck.position, _groundCheckRadius, _groundLayer);
 
-        if (_isGrounded)
+        if (_isGrounded && _canDoubleJump)
             _jumpRemaining = true;
 
         if (_jumpAction.WasPerformedThisFrame() && (_isGrounded || _jumpRemaining)) {
@@ -77,11 +81,13 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void MoveMouseCursor() {
+
+        // Get the mouse position in world coordinates
         Vector2 mouseScreenPosition = Mouse.current.position.ReadValue();
         _mouseWorldPosition = Camera.main.ScreenToWorldPoint(mouseScreenPosition);
-
         Vector2 vectorBetween = _mouseWorldPosition - (Vector2)transform.position;
 
+        // Clamp the aim cursor position to a maximum distance
         if (vectorBetween.magnitude > _aimCursorDistance) {
             vectorBetween = vectorBetween.normalized * _aimCursorDistance;
             _aimCursor.transform.position = (Vector2)transform.position + vectorBetween;
@@ -93,6 +99,7 @@ public class PlayerController : MonoBehaviour {
     private void HandleHook() {
         if (_attackAction.WasPerformedThisFrame()) {
             GameObject stickyHands = Instantiate(_stickyHandsPrefab, transform.position, Quaternion.identity);
+            stickyHands.GetComponent<StickyHandsController>().TravelDirection = (_aimCursor.transform.position - transform.position).normalized;
             //StickyHandsController stickyHandsController = stickyHands.GetComponent<StickyHandsController>();
         }
     }
