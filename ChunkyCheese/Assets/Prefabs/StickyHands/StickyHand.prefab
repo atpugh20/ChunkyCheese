@@ -49,7 +49,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxExtendTime: 0.5
-  _speed: 20
+  _extendSpeed: 20
+  _maxSwingTime: 10
+  _swingGoalDistance: 1
+  _swingDampingRatio: 0
+  _swingSpringFrequency: 0
   TravelDirection: {x: 0, y: 0}
 --- !u!212 &3046805870408532732
 SpriteRenderer:
